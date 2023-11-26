@@ -1,10 +1,11 @@
 export enum ButtonType {
   submit = 'submit',
   reset = 'reset',
-  button = 'button'
+  button = 'button',
 }
 
 export type ButtonProps = {
   text: string,
-  type: ButtonType
+  type: ButtonType,
+  disabled: boolean,
 }

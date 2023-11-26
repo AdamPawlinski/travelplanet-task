@@ -1,3 +1,6 @@
+export * from './buttonProps';
+export * from './selectboxProps';
+
 export type Price = {
   value: number, 
   currencyCode: string
@@ -15,7 +18,12 @@ export enum RoomAvailability {
   error = "error"
 }
 
-export type RoomStatus = {
+export interface RoomStatus {
   availabilityStatus: RoomAvailability,
   price: Price,
 }
+
+export interface RoomWithStatus extends Room {
+  availabilityStatus?: RoomAvailability,
+  priceDifference?: number,
+};
