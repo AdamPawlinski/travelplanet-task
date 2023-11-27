@@ -16,6 +16,7 @@ code {
 .main {
   display: flex;
   flex-direction: column;
+  margin-top: 20vh;
 }
 
 .form {
@@ -25,12 +26,33 @@ code {
 
 .select__label {
   margin-right: 30px; 
-  width: 30vw;
+  width: 35vw;
 }
 
 .select__component {
   box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px, rgba(0, 0, 0, .14) 0 6px 10px 0, rgba(0, 0, 0, .12) 0 1px 18px 0;
   margin-top: 10px;
+}
+
+.option {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  column-gap: 20px;
+  box-shadow: rgba(0, 0, 0, .2) 0 0 1px 0;
+  margin: 5px;
+
+  &__name {
+    font-weight: 700;
+  }
+
+  &__price-difference {
+    font-weight: 700;
+  }
+
+  &--unavailable {
+    opacity: 0.3;
+  }
 }
 
 // button styling copied from https: //getcssscan.com/css-buttons-examples
@@ -70,7 +92,7 @@ code {
   
   &:hover {
     background: #F6F9FE;
-    color: #174ea6;
+    color: #3c4043;
   }
 
   &:active {
@@ -81,6 +103,15 @@ code {
   &:focus {
     outline: none;
     border: 2px solid #4285f4;
+  }
+
+  &:disabled {
+    box-shadow: rgba(60, 64, 67, .3) 0 1px 3px 0, rgba(60, 64, 67, .15) 0 4px 8px 3px;
+    cursor: not-allowed;
+    &:hover {
+      background: #fff;
+      color: #3c4043;
+    }
   }
 
   &:not(:disabled) {
@@ -97,8 +128,5 @@ code {
 
   &:not(:disabled):active {
     box-shadow: rgba(60, 64, 67, .3) 0 4px 4px 0, rgba(60, 64, 67, .15) 0 8px 12px 6px;
-  }
-  :disabled {
-    box-shadow: rgba(60, 64, 67, .3) 0 1px 3px 0, rgba(60, 64, 67, .15) 0 4px 8px 3px;
-  }
+  }  
 }

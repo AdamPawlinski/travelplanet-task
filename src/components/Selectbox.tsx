@@ -1,18 +1,22 @@
 import * as React from 'react';
 import Select from 'react-select'
-import { Room, RoomWithStatus, SelectboxProps } from '../types';
+import { type Room, RoomAvailability, type SelectboxProps } from '../types';
+import * as classNames from "classnames";
 
 
-function OptionLabel(props: Room & RoomWithStatus) {
-  const { id, name, price, availabilityStatus, priceDifference } = props
+function OptionLabel(props: Room) {
+  const { name, price, availabilityStatus, priceDifference } = props
 
   return (
     <>
-      <div>{id} </div>
-      <div>{name} </div>
-      <div>{price?.value} {price?.currencyCode}</div>
-      <div>{availabilityStatus}</div>
-      <div>{priceDifference}</div>
+      <div className={classNames('option', {
+          'option--unavailable': availabilityStatus === RoomAvailability.error || availabilityStatus === RoomAvailability.soldout
+        })}>
+        <div className='option__name'>{name} </div>
+        <div className='option__price'>price: {price.value} {price.currencyCode}</div>
+        <div className='option__status'>status: {availabilityStatus}</div>
+        <div className='option__price-difference'>{priceDifference !== null ? `discount: ${priceDifference} ${price.currencyCode}` : ''}</div>
+      </div>
     </>
   )
 }
@@ -27,14 +31,13 @@ export default function Selectbox({...props}: SelectboxProps) {
       className='select__component'
       formatOptionLabel={OptionLabel}
       options={options}
-      isLoading
-      onMenuOpen={onSelectOpen}
+      onMenuOpen={() => onSelectOpen(true)}
       placeholder={placeholder}
       onChange={onChange}
       closeMenuOnSelect={false}
       controlShouldRenderValue={true}
       getOptionValue={option => {
-        return `${option.name} price: ${option.price.value} ${option.price.currencyCode}`
+        return `${option.name} price: ${option.price?.value} ${option.price?.currencyCode}`
       }}
     />
   )

@@ -9,21 +9,18 @@ export interface Room {
   id: string;
   name: string;
   price: Price,  
+  availabilityStatus?: RoomAvailability,
+  priceDifference?: number,
 }
 
 export enum RoomAvailability {
   available = "available",
   onRequest = "onRequest",
-  soldout = "soldout",
+  soldout = "soldOut",
   error = "error"
 }
 
 export interface RoomStatus {
   availabilityStatus: RoomAvailability,
-  price: Price,
+  price?: Price,
 }
-
-export interface RoomWithStatus extends Room {
-  availabilityStatus?: RoomAvailability,
-  priceDifference?: number,
-};

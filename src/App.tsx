@@ -2,24 +2,26 @@ import * as React from 'react';
 import Selectbox from './components/Selectbox';
 import Button from './components/Button';
 import { ButtonType } from './types/buttonProps';
-import { useEffect, useState, useRef } from 'react';
-import type { RoomStatus, Room, RoomWithStatus } from './types';
+import { useEffect, useState } from 'react';
+import type { RoomStatus, Room } from './types';
 import { RoomAvailability } from './types';
 
-function App() {
+export default function App() {
   const placeholder = 'Pick the room'
   const [rooms, setRooms] = useState<Room[]>([])
-  const [roomStatus, setRoomStatus] = useState<RoomStatus[]>([])
-  const [roomWithStatus, setRoomWithStatus] = useState<RoomWithStatus[]>([])
-  const isButtonDisabled = useRef(false);
+  const [loadData, setLoadData] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   
+
+  // sorting utility function
+
   const sortFunc = (a: Room, b: Room) => {
-    return a.price.value - b.price.value
+    return a?.price.value - b?.price.value
   }
 
   // fetching rooms list
 
-  const fetchRooms: () => Promise<Room[] | void> = async () => {
+  const fetchRooms = async () => {
     const res = await fetch('https://dcontent.inviacdn.net/shared/dev/test-api/rooms',
       {
         method: 'GET'
@@ -34,14 +36,15 @@ function App() {
   }
 
   useEffect(() => {
-    fetchRooms()
+    fetchRooms()    
   },[])  
 
-  // fetching rooms availability status
+  // fetching rooms availability status  
 
-  const fetchAvailability: () => Promise<Room[] | void> = async () => {
-    rooms.map(async(option, index) => {
-      const res = await fetch(`https://dcontent.inviacdn.net/shared/dev/test-api/room/${index + 1}`,
+  useEffect(() => {
+    let active = true;
+    const fetchAvailability = async(id: string) => {     
+      const res = await fetch(`https://dcontent.inviacdn.net/shared/dev/test-api/room/${id}`,
         {
           method: 'GET'
         },
@@ -49,40 +52,49 @@ function App() {
       if (!res.ok) {
         throw Error(res.statusText)
       }
-      const data: RoomStatus = await res.json()
-      setRoomStatus(oldData => [...oldData, data])
-    })
+      const data: RoomStatus = await res.json() 
+
+      if(active) {
+        mergeRoomsData(id, data)
+      }      
+    }
+    const roomsCopy = [...rooms];
+    setRooms([]);
+    roomsCopy.forEach((room) => fetchAvailability(room.id))
+    return () => {
+      active = false;
+    }
+  },[loadData])  
+
+  const mergeRoomsData = (id: string, data: RoomStatus) => {
+    const roomWithId = rooms.find((room) => room.id === id);
+
+    if (roomWithId) {
+      const mergedData = Object.defineProperties(roomWithId, {
+        price: {          
+          value: {
+              value: data.price?.value ? data.price.value : 0,
+              currencyCode: data.price?.currencyCode ? data.price.currencyCode : '',
+            }          
+        },
+        availabilityStatus: {
+          value: data?.availabilityStatus
+        },
+        priceDifference: {
+          value: data?.price?.value ? roomWithId.price.value - data?.price?.value : "unavailable"
+        }
+      })
+      setRooms(prevState => ([...prevState, mergedData].sort(sortFunc)));
+    }
   }
-
-  useEffect(() => {
-    fetchAvailability()
-  },[])
-
-  const loadOptions = async () => {
-    const mergeRoomsData = await rooms.map(
-      room => (
-        Object.defineProperties(room, {
-          price: {
-            value: roomStatus[parseInt(room.id) - 1].price.value
-          },
-          availabilityStatus: {
-            value: roomStatus[parseInt(room.id) - 1].availabilityStatus
-          },
-          priceDifference: {
-            value: room.price.value - roomStatus[parseInt(room.id) - 1].price.value ?? "unavailable"
-          }
-        })
-      )        
-    )
-    mergeRoomsData.sort(sortFunc)
-    setRoomWithStatus(mergeRoomsData as RoomWithStatus[]) 
-  }
-
+  
   // handling button disabling when unavailable room is selected
 
-  const handleRoomChange = (value: RoomWithStatus) => {
+  const handleRoomChange = (value: Room) => {
     if (value.availabilityStatus === RoomAvailability.soldout || value.availabilityStatus === RoomAvailability.error) {
-      isButtonDisabled.current = true
+      setIsButtonDisabled(true);
+    } else {
+      setIsButtonDisabled(false);
     }
   }
 
@@ -90,21 +102,22 @@ function App() {
 
   const handleSubmit: (e: any) => void = e => {
     e.preventDefault(); 
-    if (e.target.elements.selectRoom.value) console.log(e.target.elements.selectRoom.value)
+    if (e.target.elements.selectRoom.value) 
+    console.log(e.target.elements.selectRoom.value);
+    alert(e.target.elements.selectRoom.value);
   }
 
   return (
     <div className="main">
-      <h1>Find the best room for you</h1>
+      <h1>Travelplanet finds the best room for you</h1>
       <form method="post" onSubmit={handleSubmit} className='form'>
         <label className="select__label">
           Choose the available room: 
-          <Selectbox options={roomWithStatus || rooms} placeholder={placeholder} onSelectOpen={loadOptions} onChange={handleRoomChange} />
+          <Selectbox options={rooms} placeholder={placeholder} onSelectOpen={setLoadData} onChange={handleRoomChange} />
         </label>
-        <Button text={'Book the room'} type={ButtonType.submit} disabled={isButtonDisabled.current} />
+        <Button text={'Book the room'} type={ButtonType.submit} disabled={isButtonDisabled} />
       </form>
     </div>
   )
 }
 
-export default App;
