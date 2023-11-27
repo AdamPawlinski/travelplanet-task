@@ -5,7 +5,7 @@
   "author": "Adam Pawliński",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AdamPawlinski"
+    "url": "https://github.com/AdamPawlinski/travelplanet-task"
   },
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",

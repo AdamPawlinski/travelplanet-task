@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Hotel rooms",
+  "name": "Travelplanet task - hotel rooms",
   "icons": [
     {
       "src": "favicon.webp",
