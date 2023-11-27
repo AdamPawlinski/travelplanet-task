@@ -1,4 +1,10 @@
-Hotel rooms app
+# Hotel rooms app
+
+Find it deployed on Vercel: 
+
+https://travelplanet-task.vercel.app/
+
+or run it locally:
 
 ### `npm start` or `yarn start`
 
